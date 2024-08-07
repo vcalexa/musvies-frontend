@@ -1,24 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React from 'react';
+import { ThemeProvider, CssBaseline, Container } from '@mui/material';
+import theme from './theme';
+import Header from './components/Header';
+import MainContent from './components/MainContent';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+
+//function App() {
+//  return (
+//    <ThemeProvider theme={theme}>
+//      <CssBaseline />
+//      <Container>
+//        <Header />
+//        <MainContent />
+//      </Container>
+//    </ThemeProvider>
+//  );
+//}
 
 function App() {
+  const handleLoginSuccess = async (response) => {
+    console.log(response);
+    try {
+      const res = await axios.post('http://localhost:8080/api/auth/youtube/callback', {
+        token: response.credential,
+      });
+      console.log(res.data);
+    } catch (error) {
+      console.error('Error during authentication', error);
+    }
+  };
+
+  const handleLoginFailure = (response) => {
+    console.error('Login failed', response);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <div className="App">
+        <h1>Login with YouTube</h1>
+        <GoogleLogin
+          onSuccess={handleLoginSuccess}
+          onError={handleLoginFailure}
+        />
+      </div>
+    </GoogleOAuthProvider>
   );
 }
 
